@@ -1,6 +1,0 @@
-spring:
-  jpa:
-    show-sql: true
-app:
-  enable-safer: true
-  token-life: 0
