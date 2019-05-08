@@ -2,11 +2,11 @@ package cn.saatana.core.org.service;
 
 import org.springframework.stereotype.Service;
 
-import cn.saatana.core.common.CommonService;
+import cn.saatana.core.common.CurdService;
+import cn.saatana.core.org.dao.OrgMapper;
 import cn.saatana.core.org.entity.Org;
-import cn.saatana.core.org.mapper.OrgMapper;
 
 @Service
-public class OrgService extends CommonService<OrgMapper, Org> {
+public class OrgService extends CurdService<OrgMapper, Org> {
 
 }

@@ -1,6 +1,6 @@
 package cn.saatana.core.log.entity;
 
-import cn.saatana.core.common.CommonEntity;
+import cn.saatana.core.common.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class OparetionLog extends CommonEntity {
+public class OparetionLog extends BaseEntity {
 	private static final long serialVersionUID = 1L;
 	private String controller;
 	private String controllerName;

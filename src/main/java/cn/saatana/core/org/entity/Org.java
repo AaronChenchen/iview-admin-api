@@ -3,12 +3,11 @@ package cn.saatana.core.org.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import cn.saatana.core.common.CommonEntity;
+import cn.saatana.core.common.BaseEntity;
 import cn.saatana.core.utils.DictUtils;
 import cn.saatana.core.utils.tree.TreeNode;
 import cn.saatana.core.utils.tree.Treeable;
@@ -23,7 +22,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Org extends CommonEntity implements Treeable<Org> {
+public class Org extends BaseEntity implements Treeable<Org> {
 	private static final long serialVersionUID = 1L;
 	private String title;
 	private String code;
@@ -67,7 +66,6 @@ public class Org extends CommonEntity implements Treeable<Org> {
 		return DictUtils.query("orgLevel", level);
 	}
 
-	@JSONField(serialize = false)
 	@JsonIgnore
 	public Org getParent() {
 		return parent;

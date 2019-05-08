@@ -11,18 +11,18 @@ import org.springframework.web.bind.annotation.RestController;
 import cn.saatana.core.Safer;
 import cn.saatana.core.annotation.Guest;
 import cn.saatana.core.annotation.LogOparetion;
+import cn.saatana.core.auth.dao.AuthorizerDao;
 import cn.saatana.core.auth.entity.AuthorizationInformation;
 import cn.saatana.core.auth.entity.Authorizer;
-import cn.saatana.core.auth.mapper.AuthorizerMapper;
 import cn.saatana.core.auth.service.AuthorizerService;
-import cn.saatana.core.common.CommonController;
+import cn.saatana.core.common.CurdController;
 import cn.saatana.core.common.Res;
 import cn.saatana.core.utils.MD5Utils;
 
 @RestController
 @RequestMapping("/auth")
 @LogOparetion("登陆授权")
-public class AuthorizerController extends CommonController<AuthorizerService, AuthorizerMapper, Authorizer> {
+public class AuthorizerController extends CurdController<AuthorizerService, AuthorizerDao, Authorizer> {
 
 	@Guest
 	@PostMapping("login")

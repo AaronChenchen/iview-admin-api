@@ -2,11 +2,11 @@ package cn.saatana.core.dict.service;
 
 import org.springframework.stereotype.Service;
 
-import cn.saatana.core.common.CommonService;
+import cn.saatana.core.common.CurdService;
+import cn.saatana.core.dict.dao.DictionaryDao;
 import cn.saatana.core.dict.entity.Dictionary;
-import cn.saatana.core.dict.mapper.DictionaryMapper;
 
 @Service
-public class DictionaryService extends CommonService<DictionaryMapper, Dictionary> {
+public class DictionaryService extends CurdService<DictionaryDao, Dictionary> {
 
 }

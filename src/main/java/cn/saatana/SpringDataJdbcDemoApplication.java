@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SaAdminApplication {
+public class SpringDataJdbcDemoApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SaAdminApplication.class, args);
+		SpringApplication.run(SpringDataJdbcDemoApplication.class, args);
 	}
 
 }

@@ -3,12 +3,11 @@ package cn.saatana.core.menu.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import cn.saatana.core.common.CommonEntity;
+import cn.saatana.core.common.BaseEntity;
 import cn.saatana.core.utils.tree.TreeNode;
 import cn.saatana.core.utils.tree.Treeable;
 import lombok.Data;
@@ -16,7 +15,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Menu extends CommonEntity implements Treeable<Menu> {
+public class Menu extends BaseEntity implements Treeable<Menu> {
 	private static final long serialVersionUID = 1L;
 	private String code;
 	private String title;
@@ -52,7 +51,6 @@ public class Menu extends CommonEntity implements Treeable<Menu> {
 		return res;
 	}
 
-	@JSONField(serialize = false)
 	@JsonIgnore
 	public Menu getParent() {
 		return parent;

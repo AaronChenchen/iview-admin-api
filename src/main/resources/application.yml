@@ -1,47 +1,11 @@
 server:
   port: 8888
   servlet:
-    context-path: /sa-admin
-logging:
-  path: C:/TEMP/logs/SAADMIN
-  level:
-    root: warn
+    context-path: /demo
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/online?characterEncoding=utf8&serverTimezone=GMT%2b8
+    url: jdbc:mysql://localhost:3306/demo?characterEncoding=utf8&serverTimezone=GMT%2b8
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
-  profiles:
-    active: pro
-  jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
-    time-zone: GMT+8
-    default-property-inclusion: non-null
-  redis:
-    host: localhost
-    port: 6379
-    database: 1
-    lettuce:
-      pool:
-        max-active: 100
-        max-wait: 10000
-        max-idle: 20
-mybatis:
-  type-aliases-package: cn.saatana
-  mapper-locations: classpath:mapper/*.xml
-mapper:
-  mappers:
-  - cn.saatana.core.common.CommonMapper
-  not-empty: false
-  identity: MYSQL
-pagehelper:
-  helperDialect: mysql
-  reasonable: true
-  supportMethodsArguments: true
-  params: count=countSql
-app:
-  enable-safer: true
-  log-request-info: false
-  allow-local-cross-domain: false

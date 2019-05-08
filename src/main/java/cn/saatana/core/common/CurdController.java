@@ -1,5 +1,6 @@
 package cn.saatana.core.common;
 
+import java.beans.Transient;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
@@ -16,9 +17,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ValidationException;
 
@@ -39,24 +37,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.druid.util.StringUtils;
-import com.github.pagehelper.Page;
 
-import cn.saatana.config.AppProperties;
-import cn.saatana.config.TextProperties;
 import cn.saatana.core.Safer;
 import cn.saatana.core.annotation.LogOparetion;
 import cn.saatana.core.auth.entity.Authorizer;
+import cn.saatana.core.config.AppProperties;
+import cn.saatana.core.config.TextProperties;
 import cn.saatana.core.utils.ExcelUtils;
 
 @ControllerAdvice
-public abstract class CommonController<Service extends CommonService<Repository, Entity>, Repository extends CommonMapper<Entity>, Entity extends CommonEntity> {
-	protected static final Logger log = Logger.getLogger("CommonController");
+public abstract class CurdController<Service extends CurdService<Dao, Entity>, Dao extends CurdDao<Entity>, Entity extends BaseEntity> {
 	@Autowired
 	protected Service service;
 	@Autowired
 	protected AppProperties appProp;
 	@Autowired
 	protected TextProperties textProp;
+	protected Logger log = Logger.getLogger(this.getClass().getName());
 
 	@LogOparetion("分页查询")
 	@PostMapping("page")
@@ -79,7 +76,7 @@ public abstract class CommonController<Service extends CommonService<Repository,
 	@LogOparetion("重复校验")
 	@RequestMapping("check")
 	public Res<Boolean> check(@RequestBody Entity entity) {
-		return Res.ok(service.exist(entity));
+		return Res.ok(service.total(entity) == 0);
 	}
 
 	@LogOparetion("列表查询")
@@ -150,8 +147,8 @@ public abstract class CommonController<Service extends CommonService<Repository,
 	@LogOparetion("批量物理删除数据")
 	@PostMapping("deleteAll")
 	public Res<List<Entity>> deleteAll(@RequestBody List<String> ids) {
-		List<Entity> list = service.findAllByIds(ids);
-		service.deleteAll(ids);
+		List<Entity> list = service.getAll(ids);
+		service.removeAll(ids);
 		return Res.ok(list);
 	}
 
@@ -290,11 +287,7 @@ public abstract class CommonController<Service extends CommonService<Repository,
 
 	private boolean isIgnoreField(Field field) {
 		boolean res = false;
-		if (field.getAnnotation(ManyToOne.class) != null) {
-			res = true;
-		} else if (field.getAnnotation(OneToOne.class) != null) {
-			res = true;
-		} else if (field.getAnnotation(Transient.class) != null) {
+		if (field.getAnnotation(Transient.class) != null) {
 			res = true;
 		} else if (Modifier.isStatic(field.getModifiers())) {
 			res = true;

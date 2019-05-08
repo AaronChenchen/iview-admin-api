@@ -3,8 +3,10 @@ package cn.saatana.core;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -16,14 +18,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.alibaba.fastjson.JSONObject;
-
-import cn.saatana.config.AppProperties;
 import cn.saatana.core.annotation.HasPermission.PermissionLogic;
 import cn.saatana.core.auth.entity.AuthorizationInformation;
 import cn.saatana.core.auth.entity.Authorizer;
 import cn.saatana.core.auth.service.AuthorizerService;
-import cn.saatana.core.utils.RedisService;
+import cn.saatana.core.config.AppProperties;
 
 /**
  * 应用安全类
@@ -34,17 +33,12 @@ import cn.saatana.core.utils.RedisService;
 @Component
 public class Safer {
 	private static AppProperties appProp;
-	private static RedisService redis;
 	private static AuthorizerService authService;
+	private static Map<String, AuthorizationInformation> redis = new ConcurrentHashMap<>();
 
 	@Autowired
 	public void setAuthService(AuthorizerService authService) {
 		Safer.authService = authService;
-	}
-
-	@Autowired
-	public void setRedis(RedisService redis) {
-		Safer.redis = redis;
 	}
 
 	@Autowired
@@ -108,12 +102,7 @@ public class Safer {
 			redis.remove(token);
 		} else {
 			auth.setAuth(authService.get(auth.getAuth().getId()));
-			long life = appProp.getTokenLife();
-			if (life < 30l) {
-				redis.set(token, auth);
-			} else {
-				redis.set(token, auth, appProp.getTokenLife());
-			}
+			redis.put(token, auth);
 		}
 		return token;
 	}
@@ -250,11 +239,7 @@ public class Safer {
 	 * @return
 	 */
 	public static AuthorizationInformation getAuthorizerByToken(String token) {
-		AuthorizationInformation res = null;
-		Object obj = redis.get(token);
-		if (obj != null) {
-			res = ((JSONObject) obj).toJavaObject(AuthorizationInformation.class);
-		}
+		AuthorizationInformation res = redis.get(token);
 		return res;
 	}
 

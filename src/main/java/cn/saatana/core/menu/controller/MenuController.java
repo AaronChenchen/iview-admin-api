@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 import cn.saatana.core.Safer;
 import cn.saatana.core.annotation.HasPermission;
 import cn.saatana.core.annotation.LogOparetion;
-import cn.saatana.core.common.CommonController;
+import cn.saatana.core.common.CurdController;
 import cn.saatana.core.common.Res;
+import cn.saatana.core.menu.dao.MenuDao;
 import cn.saatana.core.menu.entity.Menu;
-import cn.saatana.core.menu.mapper.MenuMapper;
 import cn.saatana.core.menu.service.MenuService;
 import cn.saatana.core.role.entity.Role;
 import cn.saatana.core.role.service.RoleService;
@@ -31,7 +31,7 @@ import cn.saatana.core.utils.tree.TreeNode;
 @RequestMapping("/menu")
 @HasPermission("menuManager")
 @LogOparetion("菜单管理")
-public class MenuController extends CommonController<MenuService, MenuMapper, Menu> {
+public class MenuController extends CurdController<MenuService, MenuDao, Menu> {
 	@Autowired
 	private RoleService roleService;
 

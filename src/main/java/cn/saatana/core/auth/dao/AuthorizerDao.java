@@ -1,12 +1,12 @@
-package cn.saatana.core.auth.mapper;
+package cn.saatana.core.auth.dao;
 
 import org.springframework.stereotype.Component;
 
 import cn.saatana.core.auth.entity.Authorizer;
-import cn.saatana.core.common.CommonMapper;
+import cn.saatana.core.common.CurdDao;
 
 @Component
-public interface AuthorizerMapper extends CommonMapper<Authorizer> {
+public interface AuthorizerDao extends CurdDao<Authorizer> {
 
 	Authorizer getByUsername(String username);
 

@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cn.saatana.core.annotation.LogOparetion;
-import cn.saatana.core.common.CommonController;
+import cn.saatana.core.common.CurdController;
 import cn.saatana.core.common.Res;
+import cn.saatana.core.org.dao.OrgMapper;
 import cn.saatana.core.org.entity.Org;
-import cn.saatana.core.org.mapper.OrgMapper;
 import cn.saatana.core.org.service.OrgService;
 import cn.saatana.core.utils.TreeUtils;
 import cn.saatana.core.utils.tree.TreeNode;
@@ -18,7 +18,7 @@ import cn.saatana.core.utils.tree.TreeNode;
 @RestController
 @RequestMapping("/org")
 @LogOparetion("组织机构管理")
-public class OrgController extends CommonController<OrgService, OrgMapper, Org> {
+public class OrgController extends CurdController<OrgService, OrgMapper, Org> {
 
 	@RequestMapping("tree")
 	public Res<List<TreeNode<Org>>> tree() {

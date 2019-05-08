@@ -8,16 +8,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cn.saatana.core.annotation.LogOparetion;
-import cn.saatana.core.common.CommonController;
+import cn.saatana.core.common.CurdController;
 import cn.saatana.core.common.Res;
+import cn.saatana.core.dict.dao.DictionaryDao;
 import cn.saatana.core.dict.entity.Dictionary;
-import cn.saatana.core.dict.mapper.DictionaryMapper;
 import cn.saatana.core.dict.service.DictionaryService;
 
 @RestController
 @LogOparetion("字典管理")
 @RequestMapping("/dict")
-public class DictionaryController extends CommonController<DictionaryService, DictionaryMapper, Dictionary> {
+public class DictionaryController extends CurdController<DictionaryService, DictionaryDao, Dictionary> {
 	@PostMapping("query")
 	@LogOparetion(ignore = true, value = "查字典")
 	public Res<String> query(@RequestBody Dictionary entity) {

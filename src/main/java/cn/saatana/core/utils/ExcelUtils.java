@@ -29,12 +29,15 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
 import com.alibaba.druid.util.StringUtils;
 
 import cn.saatana.core.annotation.ExcelField;
+import cn.saatana.core.dict.entity.Dictionary;
+import cn.saatana.core.dict.service.DictionaryService;
 
 /**
  * Excel表格导入导出工具类
@@ -44,6 +47,13 @@ import cn.saatana.core.annotation.ExcelField;
  */
 @Component
 public class ExcelUtils {
+	private static DictionaryService dictService;
+
+	@Autowired
+	public void setDictionaryService(DictionaryService dictService) {
+		ExcelUtils.dictService = dictService;
+	}
+
 	/**
 	 * 导入数据
 	 *
@@ -123,7 +133,11 @@ public class ExcelUtils {
 								setValue = new SimpleDateFormat(anno.dateFormat()).format(cellValue);
 							} else if (!StringUtils.isEmpty(anno.dictType())) {
 								// 字典处理
-								setValue = DictUtils.query(anno.dictType(), cellValue);
+								Dictionary dict = new Dictionary(anno.dictType(), cellValue);
+								List<Dictionary> dicts = dictService.findList(dict);
+								if (dicts.size() > 0) {
+									setValue = dicts.get(0).getValue();
+								}
 							} else {
 								// 默认处理
 								setValue = cellValue;
@@ -142,6 +156,11 @@ public class ExcelUtils {
 			e.printStackTrace();
 		}
 		return data;
+	}
+
+	private static Method findSetterMethod(Field field) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/**
@@ -257,7 +276,11 @@ public class ExcelUtils {
 								cell.setCellValue(cellValue);
 							} else if (!StringUtils.isEmpty(anno.dictType()) && returnValue instanceof Integer) {
 								// 字典处理
-								cellValue = DictUtils.query(anno.dictType(), (int) returnValue);
+								Dictionary dict = new Dictionary(anno.dictType(), (Integer) returnValue);
+								List<Dictionary> dicts = dictService.findList(dict);
+								if (dicts.size() > 0) {
+									cellValue = dicts.get(0).getLabel();
+								}
 								cell.setCellValue(cellValue);
 							} else {
 								// 默认处理
@@ -286,12 +309,7 @@ public class ExcelUtils {
 	}
 
 	private static Method findGetterMethod(Field field) {
-		// TODO
-		return null;
-	}
-
-	private static Method findSetterMethod(Field field) {
-		// TODO
+		// TODO Auto-generated method stub
 		return null;
 	}
 

@@ -5,14 +5,14 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 
-import cn.saatana.core.common.CommonEntity;
+import cn.saatana.core.common.BaseEntity;
 import cn.saatana.core.menu.entity.Menu;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Role extends CommonEntity {
+public class Role extends BaseEntity {
 	private static final long serialVersionUID = 1L;
 	private String name;
 	private String code;
