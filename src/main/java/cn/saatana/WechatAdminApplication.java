@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SpringDataJdbcDemoApplication {
+public class WechatAdminApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpringDataJdbcDemoApplication.class, args);
+		SpringApplication.run(WechatAdminApplication.class, args);
 	}
 
 }

@@ -1,4 +1,4 @@
-package cn.saatana.config;
+package cn.saatana.core.config;
 
 import java.util.logging.Logger;
 

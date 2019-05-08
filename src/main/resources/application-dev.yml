@@ -1,6 +1,6 @@
 logging:
   level:
-    root: debug
+    root: info
 app:
   enable-safer: true
-  log-request-info: false
+  log-request-info: true
