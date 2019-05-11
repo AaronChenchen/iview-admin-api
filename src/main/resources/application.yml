@@ -7,8 +7,12 @@ logging:
     root: warn
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/demo?characterEncoding=utf8&serverTimezone=GMT%2b8
+    url: jdbc:mysql://localhost:3306/online?characterEncoding=utf8&serverTimezone=GMT%2b8
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    default-property-inclusion: non-null

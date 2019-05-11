@@ -1,5 +1,7 @@
 package cn.saatana.core.auth.entity;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,6 +29,17 @@ public class Authorizer extends BaseEntity {
 	public Authorizer(String username, String password) {
 		this.username = username;
 		this.password = password;
+	}
+
+	public Authorizer(ResultSet set, int rownum) {
+		super(set, rownum);
+		try {
+			this.setUsername(set.getString("username"));
+			this.setPassword(set.getString("password"));
+			this.setLoginDate(set.getTimestamp("login_date"));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@JsonIgnore

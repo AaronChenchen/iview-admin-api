@@ -1,5 +1,7 @@
 package cn.saatana.core.role.entity;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,7 +18,6 @@ public class Role extends BaseEntity {
 	private static final long serialVersionUID = 1L;
 	private String name;
 	private String code;
-	private String description;
 	private Set<Menu> menus = new HashSet<>();
 	private Set<Integer> accessScopes = new HashSet<>();
 
@@ -31,5 +32,15 @@ public class Role extends BaseEntity {
 			sb.setLength(sb.length() - 1);
 		}
 		return sb.toString();
+	}
+
+	public Role(ResultSet set, int rownum) {
+		super(set, rownum);
+		try {
+			this.setName(set.getString("name"));
+			this.setCode(set.getString("code"));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }

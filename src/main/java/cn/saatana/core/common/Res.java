@@ -5,28 +5,28 @@ import java.util.Date;
 import org.springframework.http.HttpStatus;
 
 public class Res<T> {
-	private HttpStatus status;
+	private int status;
 	private String message;
 	private T data;
 	private Date serviceTime = new Date();
 
 	public static <T> Res<T> ok(T data) {
-		return of(HttpStatus.OK, "操作成功", data);
+		return of(HttpStatus.OK.value(), "操作成功", data);
 	}
 
 	public static <T> Res<T> ok(String message, T data) {
-		return of(HttpStatus.OK, message, data);
+		return of(HttpStatus.OK.value(), message, data);
 	}
 
 	public static <T> Res<T> error(T data) {
-		return of(HttpStatus.INTERNAL_SERVER_ERROR, "服务器异常", data);
+		return of(HttpStatus.INTERNAL_SERVER_ERROR.value(), "服务器异常", data);
 	}
 
 	public static <T> Res<T> error(String message, T data) {
-		return of(HttpStatus.INTERNAL_SERVER_ERROR, message, data);
+		return of(HttpStatus.INTERNAL_SERVER_ERROR.value(), message, data);
 	}
 
-	public static <T> Res<T> of(HttpStatus status, String message, T data) {
+	public static <T> Res<T> of(int status, String message, T data) {
 		return new Res<T>().setData(data).setMessage(message).setStatus(status);
 	}
 
@@ -41,11 +41,11 @@ public class Res<T> {
 		this.serviceTime = serviceTime;
 	}
 
-	public HttpStatus getStatus() {
+	public int getStatus() {
 		return status;
 	}
 
-	public Res<T> setStatus(HttpStatus status) {
+	public Res<T> setStatus(int status) {
 		this.status = status;
 		return this;
 	}

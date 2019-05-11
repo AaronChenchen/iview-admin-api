@@ -62,7 +62,7 @@ public abstract class CurdController<Service extends CurdService<Dao, Entity>, D
 	}
 
 	@LogOparetion("主键查询")
-	@PostMapping("get/{id}")
+	@RequestMapping("get/{id}")
 	public Res<Entity> get(@PathVariable String id) {
 		return Res.ok(service.get(id));
 	}
@@ -109,7 +109,7 @@ public abstract class CurdController<Service extends CurdService<Dao, Entity>, D
 	}
 
 	@LogOparetion("逻辑删除数据")
-	@PostMapping("remove/{id}")
+	@RequestMapping("remove/{id}")
 	public Res<Entity> remove(@PathVariable String id) {
 		Entity entity = service.remove(id);
 		return Res.ok(entity);
@@ -123,7 +123,7 @@ public abstract class CurdController<Service extends CurdService<Dao, Entity>, D
 	}
 
 	@LogOparetion("逻辑恢复数据")
-	@PostMapping("restore/{id}")
+	@RequestMapping("restore/{id}")
 	public Res<Entity> restore(@PathVariable String id) {
 		Entity entity = service.restore(id);
 		return Res.ok(entity);
@@ -137,7 +137,7 @@ public abstract class CurdController<Service extends CurdService<Dao, Entity>, D
 	}
 
 	@LogOparetion("物理删除数据")
-	@PostMapping("delete/{id}")
+	@RequestMapping("delete/{id}")
 	public Res<Entity> delete(@PathVariable String id) {
 		Entity entity = service.get(id);
 		service.delete(id);
