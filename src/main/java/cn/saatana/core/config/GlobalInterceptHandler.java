@@ -6,14 +6,14 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSON;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import cn.saatana.core.Safer;
 import cn.saatana.core.annotation.Admin;
@@ -29,7 +29,6 @@ public class GlobalInterceptHandler extends HandlerInterceptorAdapter {
 	private AppProperties appProp;
 	@Autowired
 	private TextProperties textProp;
-	private ObjectMapper JSON = new ObjectMapper();
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -48,18 +47,18 @@ public class GlobalInterceptHandler extends HandlerInterceptorAdapter {
 			if (authId == null) {
 				if (StringUtils.isEmpty(Safer.scanToken())) {
 					// 未登录授权的提示语
-					JSON.writeValue(response.getWriter(),
-							Res.of(HttpStatus.UNAUTHORIZED.value(), textProp.getUnauthorizedMessage(), null));
+					response.getWriter().println(JSON
+							.toJSON(Res.of(HttpStatus.UNAUTHORIZED.value(), textProp.getUnauthorizedMessage(), null)));
 				} else {
 					// 登录信息失效的提示语
-					JSON.writeValue(response.getWriter(),
-							Res.of(HttpStatus.UNAUTHORIZED.value(), textProp.getInvalidTokenMessage(), null));
+					response.getWriter().println(JSON
+							.toJSON(Res.of(HttpStatus.UNAUTHORIZED.value(), textProp.getInvalidTokenMessage(), null)));
 				}
 				result = false;
 			} else if ((needSuperAdmin(handler) && !Safer.isSuperAdmin()) || !hasPersisson(handler, authId)) {
 				// 没有访问权限的提示语
-				JSON.writeValue(response.getWriter(), Res.of(HttpStatus.UNAUTHORIZED.value(),
-						textProp.getNoAccessMessage(), textProp.getNoAccessMessage()));
+				response.getWriter().println(JSON.toJSON(Res.of(HttpStatus.UNAUTHORIZED.value(),
+						textProp.getNoAccessMessage(), textProp.getNoAccessMessage())));
 				result = false;
 			}
 		}

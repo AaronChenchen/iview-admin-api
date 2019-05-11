@@ -29,7 +29,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.hibernate.internal.util.ReflectHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.ExampleMatcher.StringMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
@@ -101,7 +103,7 @@ public class ExcelUtils {
 				// 判断是否是指定分组的字段的Setter方法
 				boolean res = anno != null;
 				if (res) {
-					Method method = findSetterMethod(field);
+					Method method = ReflectHelper.findSetterMethod(type, field.getName(), field.getType());
 					if (method != null) {
 						annos.add(anno);
 						methods.add(method);
@@ -133,8 +135,10 @@ public class ExcelUtils {
 								setValue = new SimpleDateFormat(anno.dateFormat()).format(cellValue);
 							} else if (!StringUtils.isEmpty(anno.dictType())) {
 								// 字典处理
-								Dictionary dict = new Dictionary(anno.dictType(), cellValue);
-								List<Dictionary> dicts = dictService.findList(dict);
+								Dictionary dict = new Dictionary();
+								dict.setCode(anno.dictType());
+								dict.setLabel(cellValue);
+								List<Dictionary> dicts = dictService.findList(dict, StringMatcher.EXACT);
 								if (dicts.size() > 0) {
 									setValue = dicts.get(0).getValue();
 								}
@@ -156,11 +160,6 @@ public class ExcelUtils {
 			e.printStackTrace();
 		}
 		return data;
-	}
-
-	private static Method findSetterMethod(Field field) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	/**
@@ -204,7 +203,7 @@ public class ExcelUtils {
 				// 判断是否是指定分组的字段的Getter方法
 				boolean res = anno != null && containsAny(groups, anno.groups());
 				if (res) {
-					Method method = findGetterMethod(field);
+					Method method = ReflectHelper.findGetterMethodForFieldAccess(field, field.getName());
 					if (method != null) {
 						annos.add(anno);
 						methods.add(method);
@@ -276,8 +275,10 @@ public class ExcelUtils {
 								cell.setCellValue(cellValue);
 							} else if (!StringUtils.isEmpty(anno.dictType()) && returnValue instanceof Integer) {
 								// 字典处理
-								Dictionary dict = new Dictionary(anno.dictType(), (Integer) returnValue);
-								List<Dictionary> dicts = dictService.findList(dict);
+								Dictionary dict = new Dictionary();
+								dict.setCode(anno.dictType());
+								dict.setValue((Integer) returnValue);
+								List<Dictionary> dicts = dictService.findList(dict, StringMatcher.EXACT);
 								if (dicts.size() > 0) {
 									cellValue = dicts.get(0).getLabel();
 								}
@@ -306,11 +307,6 @@ public class ExcelUtils {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	private static Method findGetterMethod(Field field) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	private static boolean containsAny(int[] need, int[] has) {

@@ -10,6 +10,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import com.alibaba.druid.util.StringUtils;
+import com.alibaba.fastjson.JSON;
 
 import cn.saatana.core.utils.tree.TreeNode;
 import cn.saatana.core.utils.tree.Treeable;
@@ -245,6 +246,11 @@ class Person implements Treeable<Person> {
 	@Override
 	public String uniqueCode() {
 		return id + "";
+	}
+
+	@Override
+	public String toString() {
+		return JSON.toJSONString(this);
 	}
 
 	public List<Person> getChildren() {

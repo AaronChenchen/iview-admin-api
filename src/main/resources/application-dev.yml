@@ -1,6 +1,7 @@
-logging:
-  level:
-    root: info
+spring:
+  jpa:
+    show-sql: false
 app:
   enable-safer: true
-  log-request-info: true
+  token-life: 0
+  log-oparetion: false

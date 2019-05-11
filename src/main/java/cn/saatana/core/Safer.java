@@ -3,14 +3,14 @@ package cn.saatana.core;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.alibaba.fastjson.JSONObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,6 +23,7 @@ import cn.saatana.core.auth.entity.AuthorizationInformation;
 import cn.saatana.core.auth.entity.Authorizer;
 import cn.saatana.core.auth.service.AuthorizerService;
 import cn.saatana.core.config.AppProperties;
+import cn.saatana.core.utils.RedisService;
 
 /**
  * 应用安全类
@@ -33,12 +34,17 @@ import cn.saatana.core.config.AppProperties;
 @Component
 public class Safer {
 	private static AppProperties appProp;
+	private static RedisService redis;
 	private static AuthorizerService authService;
-	private static Map<String, AuthorizationInformation> redis = new ConcurrentHashMap<>();
 
 	@Autowired
 	public void setAuthService(AuthorizerService authService) {
 		Safer.authService = authService;
+	}
+
+	@Autowired
+	public void setRedis(RedisService redis) {
+		Safer.redis = redis;
 	}
 
 	@Autowired
@@ -102,7 +108,12 @@ public class Safer {
 			redis.remove(token);
 		} else {
 			auth.setAuth(authService.get(auth.getAuth().getId()));
-			redis.put(token, auth);
+			long life = appProp.getTokenLife();
+			if (life < 30l) {
+				redis.set(token, auth);
+			} else {
+				redis.set(token, auth, appProp.getTokenLife());
+			}
 		}
 		return token;
 	}
@@ -110,8 +121,7 @@ public class Safer {
 	/**
 	 * 用户登录
 	 *
-	 * @param auth
-	 *            用户
+	 * @param auth 用户
 	 * @return 用户登录信息
 	 */
 	public static AuthorizationInformation login(Authorizer auth) {
@@ -129,8 +139,7 @@ public class Safer {
 	/**
 	 * 判断当前登录授权者是否拥有指定权限
 	 *
-	 * @param permission
-	 *            权限，多个用,隔开
+	 * @param permission 权限，多个用,隔开
 	 * @return
 	 */
 	public static boolean hasPromission(String permission) {
@@ -140,10 +149,8 @@ public class Safer {
 	/**
 	 * 判断当前登录授权者是否拥有指定权限
 	 *
-	 * @param permission
-	 *            权限，多个用,隔开
-	 * @param logic
-	 *            存在多个权限时的检验逻辑
+	 * @param permission 权限，多个用,隔开
+	 * @param logic      存在多个权限时的检验逻辑
 	 * @return 是否拥有
 	 */
 	public static boolean hasPermission(String permission, PermissionLogic logic) {
@@ -153,12 +160,9 @@ public class Safer {
 	/**
 	 * 判断指定ID的授权者是否拥有指定权限
 	 *
-	 * @param authId
-	 *            授权者ID
-	 * @param permission
-	 *            权限，多个用,隔开
-	 * @param logic
-	 *            存在多个权限时的检验逻辑
+	 * @param authId     授权者ID
+	 * @param permission 权限，多个用,隔开
+	 * @param logic      存在多个权限时的检验逻辑
 	 * @return 是否拥有
 	 */
 	public static boolean hasPermission(String authId, String permission, PermissionLogic logic) {
@@ -239,7 +243,11 @@ public class Safer {
 	 * @return
 	 */
 	public static AuthorizationInformation getAuthorizerByToken(String token) {
-		AuthorizationInformation res = redis.get(token);
+		AuthorizationInformation res = null;
+		Object obj = redis.get(token);
+		if (obj != null) {
+			res = ((JSONObject) obj).toJavaObject(AuthorizationInformation.class);
+		}
 		return res;
 	}
 

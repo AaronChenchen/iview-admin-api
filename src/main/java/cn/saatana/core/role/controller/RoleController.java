@@ -14,21 +14,21 @@ import cn.saatana.core.auth.entity.Authorizer;
 import cn.saatana.core.auth.service.AuthorizerService;
 import cn.saatana.core.common.CurdController;
 import cn.saatana.core.common.Res;
-import cn.saatana.core.role.dao.RoleDao;
 import cn.saatana.core.role.entity.Role;
+import cn.saatana.core.role.repository.RoleRepository;
 import cn.saatana.core.role.service.RoleService;
 
 @RestController
 @RequestMapping("/role")
 @LogOparetion("角色管理")
-public class RoleController extends CurdController<RoleService, RoleDao, Role> {
+public class RoleController extends CurdController<RoleService, RoleRepository, Role> {
 	@Autowired
 	private AuthorizerService authService;
 
 	@PostMapping("/dispatch/{id}")
 	@LogOparetion("分配用户角色")
 	public Res<List<Authorizer>> dispatch(@PathVariable String id, @RequestBody List<String> ids) {
-		List<Authorizer> list = authService.getAll(ids);
+		List<Authorizer> list = authService.findAllByIds(ids);
 		Role role = service.get(id);
 		list.forEach(item -> {
 			if (!item.getRoles().contains(role)) {
@@ -42,7 +42,7 @@ public class RoleController extends CurdController<RoleService, RoleDao, Role> {
 	@PostMapping("/undispatch/{id}")
 	@LogOparetion("移除用户角色")
 	public Res<List<Authorizer>> undispatch(@PathVariable String id, @RequestBody List<String> ids) {
-		List<Authorizer> list = authService.getAll(ids);
+		List<Authorizer> list = authService.findAllByIds(ids);
 		Role role = service.get(id);
 		list.forEach(item -> {
 			if (item.getRoles().contains(role)) {

@@ -1,97 +1,128 @@
 package cn.saatana.core.common;
 
 import java.io.Serializable;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import cn.saatana.core.Safer;
+import cn.saatana.core.auth.entity.AuthorizationInformation;
+import cn.saatana.core.auth.entity.Authorizer;
 import lombok.Data;
 
+/**
+ * 公共实体类
+ *
+ * @author 向文可
+ *
+ */
 @Data
+@MappedSuperclass
 public abstract class BaseEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
-	protected String id;
-	protected Date createDate;
-	protected Date updateDate;
-	protected String creatorId;
-	protected String updatorId;
-	protected String description;
-	protected DataStatus dataStatus = DataStatus.NORMAL;
-	protected int page = 1;
-	protected int limit = 10;
+	public static final int STATUS_NORMAL = 0;
+	public static final int STATUS_DELETED = 1;
+	public static final String WHERE_CLAUSE = "data_status = " + STATUS_NORMAL;
+	@Id
+	// @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id", unique = true, nullable = false, length = 64)
+	private String id;
+	private String description;
+	private Date createDate;
+	private Date updateDate;
+	@JSONField(serialize = false)
+	@JsonIgnore
+	@ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
+	private Authorizer creator;
+	@JSONField(serialize = false)
+	@JsonIgnore
+	@ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
+	private Authorizer updator;
+	@JSONField(serialize = false)
+	@JsonIgnore
+	private int dataStatus = 0;
+	@Transient
+	protected Integer page;
+	@Transient
+	protected Integer limit;
 
-	public BaseEntity() {
-	}
-
-	public BaseEntity(ResultSet set, int rownum) {
-		try {
-			this.setId(set.getString("id"));
-			this.setCreateDate(set.getTimestamp("create_date"));
-			this.setUpdateDate(set.getTimestamp("update_date"));
-			this.setCreatorId(set.getString("creator_id"));
-			this.setUpdatorId(set.getString("updator_id"));
-			this.setDescription(set.getString("description"));
-			this.setDataStatus(DataStatus.of(set.getInt("data_status")));
-		} catch (SQLException e) {
-			e.printStackTrace();
+	public void preCreate() {
+		this.setId(UUID.randomUUID().toString().replaceAll("-", ""));
+		AuthorizationInformation authInfo = Safer.currentAuthInfo();
+		if (authInfo != null) {
+			this.setCreator(authInfo.getAuth());
 		}
-	}
-
-	public String preCreate() {
 		this.setCreateDate(new Date());
-		this.setId(BaseEntity.UUID());
-		return this.getId();
 	}
 
 	public void preUpdate() {
+		AuthorizationInformation authInfo = Safer.currentAuthInfo();
+		if (authInfo != null) {
+			this.setUpdator(authInfo.getAuth());
+		}
 		this.setUpdateDate(new Date());
 	}
 
-	public void preRemove() {
+	public void preDelete() {
 		preUpdate();
-		this.setDataStatus(DataStatus.REMOVE);
+		this.dataStatus = STATUS_DELETED;
 	}
 
 	public void preRestore() {
 		preUpdate();
-		this.setDataStatus(DataStatus.NORMAL);
+		this.dataStatus = STATUS_NORMAL;
 	}
 
-	public static final String UUID() {
-		return java.util.UUID.randomUUID().toString().replaceAll("-", "");
+	@JsonGetter
+	public String getCreatorId() {
+		String res = null;
+		Authorizer auth = this.getCreator();
+		if (auth != null) {
+			res = auth.getId();
+		}
+		return res;
 	}
 
-	public enum DataStatus {
-		NORMAL(0), REMOVE(1);
-		private int value;
-
-		@JsonValue
-		public int getValue() {
-			return this.value;
+	@JsonGetter
+	public String getCreatorUsername() {
+		String res = null;
+		Authorizer auth = this.getCreator();
+		if (auth != null) {
+			res = auth.getUsername();
 		}
+		return res;
+	}
 
-		public static DataStatus of(int value) {
-			List<DataStatus> list = Arrays.asList(DataStatus.values()).parallelStream()
-					.filter(item -> item.getValue() == value).collect(Collectors.toList());
-			DataStatus res = null;
-			if (list.size() > 0) {
-				res = list.get(0);
-			}
-			return res;
+	@JsonGetter
+	public String getUpdatorId() {
+		String res = null;
+		Authorizer auth = this.getUpdator();
+		if (auth != null) {
+			res = auth.getId();
 		}
+		return res;
+	}
 
-		@Override
-		public String toString() {
-			return this.value + "";
+	@JsonGetter
+	public String getUpdatorUsername() {
+		String res = null;
+		Authorizer auth = this.getUpdator();
+		if (auth != null) {
+			res = auth.getUsername();
 		}
-
-		DataStatus(int value) {
-			this.value = value;
-		}
+		return res;
 	}
 }

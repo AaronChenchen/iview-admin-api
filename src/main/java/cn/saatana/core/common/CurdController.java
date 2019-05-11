@@ -1,6 +1,5 @@
 package cn.saatana.core.common;
 
-import java.beans.Transient;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
@@ -17,12 +16,19 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ValidationException;
+
+import com.alibaba.druid.util.StringUtils;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.data.domain.ExampleMatcher.StringMatcher;
+import org.springframework.data.domain.Page;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
@@ -36,8 +42,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.alibaba.druid.util.StringUtils;
-
 import cn.saatana.core.Safer;
 import cn.saatana.core.annotation.LogOparetion;
 import cn.saatana.core.auth.entity.Authorizer;
@@ -46,14 +50,14 @@ import cn.saatana.core.config.TextProperties;
 import cn.saatana.core.utils.ExcelUtils;
 
 @ControllerAdvice
-public abstract class CurdController<Service extends CurdService<Dao, Entity>, Dao extends CurdDao<Entity>, Entity extends BaseEntity> {
+public abstract class CurdController<Service extends CurdService<Repository, Entity>, Repository extends CurdRepository<Entity>, Entity extends BaseEntity> {
+	protected static final Logger log = Logger.getLogger("CommonController");
 	@Autowired
 	protected Service service;
 	@Autowired
 	protected AppProperties appProp;
 	@Autowired
 	protected TextProperties textProp;
-	protected Logger log = Logger.getLogger(this.getClass().getName());
 
 	@LogOparetion("分页查询")
 	@PostMapping("page")
@@ -62,7 +66,7 @@ public abstract class CurdController<Service extends CurdService<Dao, Entity>, D
 	}
 
 	@LogOparetion("主键查询")
-	@RequestMapping("get/{id}")
+	@PostMapping("get/{id}")
 	public Res<Entity> get(@PathVariable String id) {
 		return Res.ok(service.get(id));
 	}
@@ -75,8 +79,8 @@ public abstract class CurdController<Service extends CurdService<Dao, Entity>, D
 
 	@LogOparetion("重复校验")
 	@RequestMapping("check")
-	public Res<Boolean> check(@RequestBody Entity entity) {
-		return Res.ok(service.total(entity) == 0);
+	public Res<List<Entity>> check(@RequestBody Entity entity) {
+		return Res.ok(service.findList(entity, StringMatcher.EXACT));
 	}
 
 	@LogOparetion("列表查询")
@@ -109,46 +113,50 @@ public abstract class CurdController<Service extends CurdService<Dao, Entity>, D
 	}
 
 	@LogOparetion("逻辑删除数据")
-	@RequestMapping("remove/{id}")
+	@PostMapping("remove/{id}")
 	public Res<Entity> remove(@PathVariable String id) {
-		Entity entity = service.remove(id);
+		Entity entity = service.get(id);
+		service.remove(entity);
 		return Res.ok(entity);
 	}
 
 	@LogOparetion("批量逻辑删除数据")
 	@PostMapping("removeAll")
-	public Res<List<Entity>> removeAll(@RequestBody List<String> ids) {
-		List<Entity> list = service.removeAll(ids);
+	public Res<List<Entity>> removeAll(@RequestBody List<String> idList) {
+		List<Entity> list = service.findAllByIds(idList);
+		service.removeAll(list);
 		return Res.ok(list);
 	}
 
 	@LogOparetion("逻辑恢复数据")
-	@RequestMapping("restore/{id}")
+	@PostMapping("restore/{id}")
 	public Res<Entity> restore(@PathVariable String id) {
-		Entity entity = service.restore(id);
+		Entity entity = service.get(id);
+		service.restore(entity);
 		return Res.ok(entity);
 	}
 
 	@LogOparetion("批量逻辑恢复数据")
 	@PostMapping("restoreAll")
-	public Res<List<Entity>> restore(@RequestBody List<String> ids) {
-		List<Entity> list = service.restoreAll(ids);
+	public Res<List<Entity>> restore(@RequestBody List<String> idList) {
+		List<Entity> list = service.findAllByIds(idList);
+		service.restoreAll(list);
 		return Res.ok(list);
 	}
 
 	@LogOparetion("物理删除数据")
-	@RequestMapping("delete/{id}")
+	@PostMapping("delete/{id}")
 	public Res<Entity> delete(@PathVariable String id) {
 		Entity entity = service.get(id);
-		service.delete(id);
+		service.remove(entity);
 		return Res.ok(entity);
 	}
 
 	@LogOparetion("批量物理删除数据")
 	@PostMapping("deleteAll")
 	public Res<List<Entity>> deleteAll(@RequestBody List<String> ids) {
-		List<Entity> list = service.getAll(ids);
-		service.removeAll(ids);
+		List<Entity> list = service.findAllByIds(ids);
+		service.removeAll(list);
 		return Res.ok(list);
 	}
 
@@ -245,10 +253,8 @@ public abstract class CurdController<Service extends CurdService<Dao, Entity>, D
 	 *
 	 * @see 包装了org.springframework.beans.BeanUtils.copyProperties(Object obj,Object
 	 *      obj,String... ignoreProperties)方法
-	 * @param source
-	 *            源对象
-	 * @param target
-	 *            目标对象
+	 * @param source 源对象
+	 * @param target 目标对象
 	 */
 	protected void copyNotNullProperties(Object source, Object target) {
 		BeanUtils.copyProperties(source, target, getPropertiesWithNullValue(source).toArray(new String[0]));
@@ -287,7 +293,11 @@ public abstract class CurdController<Service extends CurdService<Dao, Entity>, D
 
 	private boolean isIgnoreField(Field field) {
 		boolean res = false;
-		if (field.getAnnotation(Transient.class) != null) {
+		if (field.getAnnotation(ManyToOne.class) != null) {
+			res = true;
+		} else if (field.getAnnotation(OneToOne.class) != null) {
+			res = true;
+		} else if (field.getAnnotation(Transient.class) != null) {
 			res = true;
 		} else if (Modifier.isStatic(field.getModifiers())) {
 			res = true;

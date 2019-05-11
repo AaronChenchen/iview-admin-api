@@ -1,11 +1,16 @@
 package cn.saatana.core.dict.entity;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
 import cn.saatana.core.common.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@Entity
+@Table(name = "dict")
 public class Dictionary extends BaseEntity {
 	private static final long serialVersionUID = 1L;
 	private String type;
@@ -14,9 +19,7 @@ public class Dictionary extends BaseEntity {
 	private Integer value;
 	private Integer sort;
 
-	public Dictionary(String code, String label) {
-		this.code = code;
-		this.label = label;
+	public Dictionary() {
 	}
 
 	public Dictionary(String code, Integer value) {

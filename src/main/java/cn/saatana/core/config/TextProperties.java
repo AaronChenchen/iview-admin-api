@@ -4,6 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import lombok.Data;
+
+@Data
 @Component
 @ConfigurationProperties(prefix = "text")
 public class TextProperties {
@@ -29,33 +32,4 @@ public class TextProperties {
 	public String getFileSizeOutOfRangeMessage() {
 		return fileSizeOutOfRangeMessage.replace("${fileMaxSize}", appProp.getFileMaxSize() + "");
 	}
-
-	public void setFileSizeOutOfRangeMessage(String fileSizeOutOfRangeMessage) {
-		this.fileSizeOutOfRangeMessage = fileSizeOutOfRangeMessage;
-	}
-
-	public String getUnauthorizedMessage() {
-		return unauthorizedMessage;
-	}
-
-	public void setUnauthorizedMessage(String unauthorizedMessage) {
-		this.unauthorizedMessage = unauthorizedMessage;
-	}
-
-	public String getInvalidTokenMessage() {
-		return invalidTokenMessage;
-	}
-
-	public void setInvalidTokenMessage(String invalidTokenMessage) {
-		this.invalidTokenMessage = invalidTokenMessage;
-	}
-
-	public String getNoAccessMessage() {
-		return noAccessMessage;
-	}
-
-	public void setNoAccessMessage(String noAccessMessage) {
-		this.noAccessMessage = noAccessMessage;
-	}
-
 }

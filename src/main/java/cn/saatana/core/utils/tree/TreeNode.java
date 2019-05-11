@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.fastjson.JSON;
+
 public class TreeNode<T> implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String code;
@@ -39,6 +41,11 @@ public class TreeNode<T> implements Serializable {
 		this.sort = sort;
 		this.expand = expand;
 		this.disabled = disabled;
+	}
+
+	@Override
+	public String toString() {
+		return JSON.toJSONString(this);
 	}
 
 	public String getCode() {

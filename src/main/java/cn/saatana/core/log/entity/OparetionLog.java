@@ -1,5 +1,8 @@
 package cn.saatana.core.log.entity;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
 import cn.saatana.core.common.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,6 +15,8 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@Entity
+@Table(name = "oparetion_log")
 public class OparetionLog extends BaseEntity {
 	private static final long serialVersionUID = 1L;
 	private String controller;
@@ -19,4 +24,10 @@ public class OparetionLog extends BaseEntity {
 	private String method;
 	private String methodName;
 	private String ip;
+
+	@Override
+	public String toString() {
+		return "[controller=" + controller + ", controllerName=" + controllerName + ", method=" + method
+				+ ", methodName=" + methodName + ", ip=" + ip + "]";
+	}
 }
